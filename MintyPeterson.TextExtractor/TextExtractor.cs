@@ -12,6 +12,62 @@ namespace MintyPeterson.TextExtractor
   public static class TextExtractor
   {
     /// <summary>
+    /// Gets a value indicating if the file is a valid type.
+    /// </summary>
+    /// <param name="fileStream">A file stream.</param>
+    /// <returns>If the file type is valid, true. Otherwise, false.</returns>
+    public static bool IsValidFileType(Stream fileStream)
+    {
+      if (fileStream == null)
+      {
+        throw new ArgumentNullException("fileStream");
+      }
+
+      return IsFileHeaderValid(fileStream);
+    }
+
+    /// <summary>
+    /// Gets a value indicating if the file is a valid type.
+    /// </summary>
+    /// <param name="fileBytes">The byte representation of a file.</param>
+    /// <returns>If the file type is valid, true. Otherwise, false.</returns>
+    public static bool IsValidFileType(byte[] fileBytes)
+    {
+      if (fileBytes == null)
+      {
+        throw new ArgumentNullException("fileBytes");
+      }
+
+      using (var stream = new MemoryStream(fileBytes, false))
+      {
+        return IsFileHeaderValid(stream);
+      }
+    }
+
+    /// <summary>
+    /// Gets a value indicating if the file is a valid type.
+    /// </summary>
+    /// <param name="filePath">A file path.</param>
+    /// <returns>If the file type is valid, true. Otherwise, false.</returns>
+    public static bool IsValidFileType(string filePath)
+    {
+      if (filePath == null)
+      {
+        throw new ArgumentNullException("filePath");
+      }
+
+      if (!File.Exists(filePath))
+      {
+        throw new FileNotFoundException();
+      }
+
+      using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+      {
+        return IsFileHeaderValid(stream);
+      }
+    }
+
+    /// <summary>
     /// Extracts text from a file.
     /// </summary>
     /// <param name="fileStream">A file stream.</param>

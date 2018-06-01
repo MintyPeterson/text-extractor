@@ -129,5 +129,70 @@ namespace MintyPeterson.TextExtractor.Tests
 
       Assert.IsTrue(actualText == expectedText);
     }
+
+    [TestMethod]
+    public void TestIsValidFileTypeMethodWithUndefinedFile()
+    {
+      Assert.ThrowsException<ArgumentNullException>(
+        () => TextExtractor.IsValidFileType((string)null)
+      );
+    }
+
+    [TestMethod]
+    public void TestIsValidFileTypeMethodWithUndefinedStream()
+    {
+      Assert.ThrowsException<ArgumentNullException>(
+        () => TextExtractor.IsValidFileType((Stream)null)
+      );
+    }
+
+    [TestMethod]
+    public void TestIsValidFileTypeMethodWithUndefinedBytes()
+    {
+      Assert.ThrowsException<ArgumentNullException>(
+        () => TextExtractor.IsValidFileType((byte[])null)
+      );
+    }
+
+    [TestMethod]
+    public void TestIsValidFileTypeMethodWithMissingStream()
+    {
+      Assert.IsFalse(TextExtractor.IsValidFileType(new MemoryStream()));
+    }
+
+    [TestMethod]
+    public void TestIsValidFileTypeMethodWithMissingBytes()
+    {
+      Assert.IsFalse(TextExtractor.IsValidFileType(new byte[] { }));
+    }
+
+    [TestMethod]
+    public void TestIsValidFileTypeMethodWithMissingFile()
+    {
+      Assert.ThrowsException<FileNotFoundException>(
+        () => TextExtractor.IsValidFileType(string.Empty)
+      );
+    }
+
+    [TestMethod]
+    [DeploymentItem(@"Documents\Empty.docx")]
+    public void TestIsValidFileTypeMethodWithEmptyFile()
+    {
+      Assert.IsFalse(TextExtractor.IsValidFileType(@"Documents\Empty.docx"));
+    }
+
+    [TestMethod]
+    [DeploymentItem(@"Documents\Invalid.docx")]
+    public void TestIsValidFileTypeMethodWithInvalidFile()
+    {
+      Assert.IsFalse(TextExtractor.IsValidFileType(@"Documents\Invalid.docx"));
+    }
+
+    [TestMethod]
+    [DeploymentItem(@"Documents\Valid.docx")]
+    public void TestIsValidFileTypeMethodWithValidFile()
+    {
+      Assert.IsTrue(TextExtractor.IsValidFileType(@"Documents\Valid.docx"));
+    }
   }
 }
