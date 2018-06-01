@@ -8,7 +8,7 @@ namespace MintyPeterson.TextExtractor.Tests
   public class TextExtractorUnitTest
   {
     [TestMethod]
-    public void TextExtractMethodWithUndefinedFile()
+    public void TestExtractMethodWithUndefinedFile()
     {
       Assert.ThrowsException<ArgumentNullException>(
         () => TextExtractor.Extract((string)null)
@@ -16,7 +16,7 @@ namespace MintyPeterson.TextExtractor.Tests
     }
 
     [TestMethod]
-    public void TextExtractMethodWithUndefinedStream()
+    public void TestExtractMethodWithUndefinedStream()
     {
       Assert.ThrowsException<ArgumentNullException>(
         () => TextExtractor.Extract((Stream)null)
@@ -24,7 +24,7 @@ namespace MintyPeterson.TextExtractor.Tests
     }
 
     [TestMethod]
-    public void TextExtractMethodWithUndefinedBytes()
+    public void TestExtractMethodWithUndefinedBytes()
     {
       Assert.ThrowsException<ArgumentNullException>(
         () => TextExtractor.Extract((byte[])null)
