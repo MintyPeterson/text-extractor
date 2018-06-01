@@ -104,18 +104,30 @@ namespace MintyPeterson.TextExtractor.Tests
     [DeploymentItem(@"Documents\ValidWithFormatting.docx")]
     public void TestExtractMethodWithValidFileWithFormatting()
     {
-      var text = TextExtractor.Extract(@"Documents\ValidWithFormatting.docx");
+      var actualText = TextExtractor.Extract(@"Documents\ValidWithFormatting.docx");
 
-      Assert.IsTrue(text == "This is a Word document. It spans over multiple paragraphs with line breaks. It also has some basic formatting.");
+      var expectedText =
+        string.Concat(
+          "This is a Word document. It spans over multiple paragraphs with line breaks. ",
+          "It also has some basic formatting."
+        );
+
+      Assert.IsTrue(actualText == expectedText);
     }
 
     [TestMethod]
     [DeploymentItem(@"Documents\ValidWithTables.docx")]
     public void TestExtractMethodWithValidWithTables()
     {
-      var text = TextExtractor.Extract(@"Documents\ValidWithTables.docx");
+      var actualText = TextExtractor.Extract(@"Documents\ValidWithTables.docx");
 
-      Assert.IsTrue(text == "Heading 1 This is a document. Column 1 Column 2 Column 3 Cell 1x1 Cell 1x2 Cell 1x3 Cell 2x1 Cell 2x2 Cell 2x3");
+      var expectedText =
+        string.Concat(
+          "Heading 1 This is a document. ",
+          "Column 1 Column 2 Column 3 Cell 1x1 Cell 1x2 Cell 1x3 Cell 2x1 Cell 2x2 Cell 2x3"
+        );
+
+      Assert.IsTrue(actualText == expectedText);
     }
   }
 }
