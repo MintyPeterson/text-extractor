@@ -8,10 +8,42 @@ namespace MintyPeterson.TextExtractor.Tests
   public class TextExtractorUnitTest
   {
     [TestMethod]
-    public void TestExtractMethodWithInvalidParameters()
+    public void TextExtractMethodWithUndefinedFile()
     {
       Assert.ThrowsException<ArgumentNullException>(
-        () => TextExtractor.Extract(null)
+        () => TextExtractor.Extract((string)null)
+      );
+    }
+
+    [TestMethod]
+    public void TextExtractMethodWithUndefinedStream()
+    {
+      Assert.ThrowsException<ArgumentNullException>(
+        () => TextExtractor.Extract((Stream)null)
+      );
+    }
+
+    [TestMethod]
+    public void TextExtractMethodWithUndefinedBytes()
+    {
+      Assert.ThrowsException<ArgumentNullException>(
+        () => TextExtractor.Extract((byte[])null)
+      );
+    }
+
+    [TestMethod]
+    public void TestExtractMethodWithMissingStream()
+    {
+      Assert.ThrowsException<NotSupportedException>(
+        () => TextExtractor.Extract(new MemoryStream())
+      );
+    }
+
+    [TestMethod]
+    public void TestExtractMethodWithMissingBytes()
+    {
+      Assert.ThrowsException<NotSupportedException>(
+        () => TextExtractor.Extract(new byte[] { })
       );
     }
 

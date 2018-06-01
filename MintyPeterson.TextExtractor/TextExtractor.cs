@@ -14,6 +14,52 @@ namespace MintyPeterson.TextExtractor
     /// <summary>
     /// Extracts text from a file.
     /// </summary>
+    /// <param name="fileStream">A file stream.</param>
+    /// <returns>The text content of a file.</returns>
+    public static string Extract(Stream fileStream)
+    {
+      if (fileStream == null)
+      {
+        throw new ArgumentNullException("fileStream");
+      }
+
+      if (!IsFileHeaderValid(fileStream))
+      {
+        throw new NotSupportedException();
+      }
+
+      string content = ExtractFileContent(fileStream); ;
+
+      // Don't bother extracting the text if the contents is blank.
+      if (string.IsNullOrWhiteSpace(content))
+      {
+        return content;
+      }
+
+      return ExtractText(content);
+    }
+
+    /// <summary>
+    /// Extracts text from a file.
+    /// </summary>
+    /// <param name="fileBytes">The byte representation of a file.</param>
+    /// <returns>The text content of a file.</returns>
+    public static string Extract(byte[] fileBytes)
+    {
+      if (fileBytes == null)
+      {
+        throw new ArgumentNullException("fileBytes");
+      }
+
+      using (var stream = new MemoryStream(fileBytes, false))
+      {
+        return Extract(stream);
+      }
+    }
+
+    /// <summary>
+    /// Extracts text from a file.
+    /// </summary>
     /// <param name="filePath">A file path.</param>
     /// <returns>The text content of a file.</returns>
     public static string Extract(string filePath)
@@ -28,20 +74,10 @@ namespace MintyPeterson.TextExtractor
         throw new FileNotFoundException();
       }
 
-      if(!IsFileHeaderValid(filePath))
+      using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
       {
-        throw new NotSupportedException();
+        return Extract(stream);
       }
-
-      var content = ExtractFileContent(filePath);
-
-      // Don't bother extracting the text if the contents is blank.
-      if (string.IsNullOrWhiteSpace(content))
-      {
-        return content;
-      }
-
-      return ExtractText(content);
     }
 
     private static string ExtractText(string contents)
@@ -60,7 +96,8 @@ namespace MintyPeterson.TextExtractor
         }
         else
         {
-          bool preserveSpace = match.Groups[2].Value.Equals("preserve", StringComparison.OrdinalIgnoreCase);
+          bool preserveSpace =
+            match.Groups[2].Value.Equals("preserve", StringComparison.OrdinalIgnoreCase);
 
           if (preserveSpace)
           {
@@ -76,11 +113,16 @@ namespace MintyPeterson.TextExtractor
       return text.Trim();
     }
 
-    private static string ExtractFileContent(string filePath)
+    private static string ExtractFileContent(Stream fileStream)
     {
+      if (fileStream == null)
+      {
+        throw new ArgumentNullException("fileStream");
+      }
+
       string content = string.Empty;
 
-      using (var archive = ZipFile.OpenRead(filePath))
+      using (var archive = new ZipArchive(fileStream, ZipArchiveMode.Read, true))
       {
         var document = archive.GetEntry(@"word/document.xml");
 
@@ -89,9 +131,9 @@ namespace MintyPeterson.TextExtractor
           throw new NotSupportedException();
         }
 
-        using (var stream = document.Open())
+        using (var documentStream = document.Open())
         {
-          using (var reader = new StreamReader(stream))
+          using (var reader = new StreamReader(documentStream))
           {
             content = reader.ReadToEnd();
           }
@@ -101,23 +143,30 @@ namespace MintyPeterson.TextExtractor
       return content;
     }
 
-    private static bool IsFileHeaderValid(string filePath)
+    private static bool IsFileHeaderValid(Stream fileStream)
     {
+      if (fileStream == null)
+      {
+        throw new ArgumentNullException("fileStream");
+      }
+
+      var position = fileStream.Position;
+
       // This is the identifier for .docx.
       var identifier = new byte[] { 80, 75, 3, 4 };
 
       var header = new byte[identifier.Length];
 
-      using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+      if (fileStream.Length >= header.Length)
       {
-        if (stream.Length >= header.Length)
+        if (fileStream.Read(header, 0, header.Length) != header.Length)
         {
-          if (stream.Read(header, 0, header.Length) != header.Length)
-          {
-            throw new EndOfStreamException();
-          }
+          throw new EndOfStreamException();
         }
       }
+
+      // Set the stream back to the position we found it.
+      fileStream.Seek(position, SeekOrigin.Begin);
 
       if (!header.SequenceEqual(identifier))
       {
